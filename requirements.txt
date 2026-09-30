@@ -1,0 +1,12 @@
+# Core Computer Vision & AI
+opencv-python>=4.8.0
+mediapipe>=0.10.14,<1.0.0
+scikit-learn>=1.3.0
+numpy>=1.24.0
+
+# Audio & Speech Synthesis
+pyttsx3>=2.90
+
+# User Interface & Utilities
+Pillow>=10.0.0
+streamlit>=1.30.0

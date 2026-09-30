@@ -1,0 +1,23 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Data and Models generated locally (keep default models)
+data/collected/
+*.mp4
+*.avi
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
