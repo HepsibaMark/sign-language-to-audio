@@ -7,10 +7,15 @@ with real-time animated playback and visual landmark diagrams.
 import os
 import threading
 import time
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
+warnings.filterwarnings("ignore", message=r".*SymbolDatabase\.GetPrototype.*")
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 import cv2
 from PIL import Image, ImageTk
+
 
 from src.text_to_sign import TextToSignEngine
 from src.tts_engine import TTSEngine

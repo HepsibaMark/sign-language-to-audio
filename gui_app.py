@@ -7,11 +7,16 @@ Integrates both directions into a unified communication hub:
 
 import threading
 import time
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
+warnings.filterwarnings("ignore", message=r".*SymbolDatabase\.GetPrototype.*")
+
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import cv2
 import numpy as np
 from PIL import Image, ImageTk
+
 
 from src.hand_detector import HandDetector
 from src.gesture_classifier import GestureClassifier

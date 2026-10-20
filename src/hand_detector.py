@@ -5,9 +5,14 @@ normalizing spatial coordinates for position and scale invariance.
 """
 
 import math
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
+warnings.filterwarnings("ignore", message=r".*SymbolDatabase\.GetPrototype.*")
+
 import cv2
 import mediapipe as mp
 import numpy as np
+
 
 
 class HandDetector:

@@ -7,10 +7,15 @@ Streamlit-powered presentation portal featuring both directions:
 
 import os
 import pickle
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
+warnings.filterwarnings("ignore", message=r".*SymbolDatabase\.GetPrototype.*")
+
 import streamlit as st
 import numpy as np
 import pandas as pd
 from PIL import Image
+
 
 from src.text_to_sign import TextToSignEngine
 from src.tts_engine import TTSEngine
@@ -122,7 +127,7 @@ elif sidebar_nav == "✍️ Text to Sign Language Translator":
                     img_path = os.path.join(engine.assets_dir, f"{sign_name}.png")
                     if os.path.exists(img_path):
                         img = Image.open(img_path)
-                        st.image(img, caption=f"Step {idx + 1}: {sign_name}", use_container_width=True)
+                        st.image(img, caption=f"Step {idx + 1}: {sign_name}", width="stretch")
                     else:
                         st.info(f"[{sign_name}]")
                     st.caption(f"_{token['description']}_")
@@ -154,7 +159,7 @@ elif sidebar_nav == "📖 Visual Sign Gallery & Dictionary":
             with l_cols[idx % 4]:
                 p = os.path.join(engine.assets_dir, f"{letter}.png")
                 if os.path.exists(p):
-                    st.image(Image.open(p), caption=f"Letter {letter}", use_container_width=True)
+                    st.image(Image.open(p), caption=f"Letter {letter}", width="stretch")
 
     with tab_words:
         words = ["HELLO", "THANK YOU", "HELP", "WATER", "YES", "NO", "I LOVE YOU", "OK", "PEACE", "PLEASE", "GOOD", "BAD", "CALL"]
@@ -163,7 +168,8 @@ elif sidebar_nav == "📖 Visual Sign Gallery & Dictionary":
             with w_cols[idx % 3]:
                 p = os.path.join(engine.assets_dir, f"{word}.png")
                 if os.path.exists(p):
-                    st.image(Image.open(p), caption=word, use_container_width=True)
+                    st.image(Image.open(p), caption=word, width="stretch")
+
 
 # -----------------------------------------------------------------------------
 # 4. Model Performance & Dataset

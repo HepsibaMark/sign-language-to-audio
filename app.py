@@ -4,12 +4,17 @@ Real-time webcam gesture detection, sentence building, and audio synthesis.
 """
 
 import time
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
+warnings.filterwarnings("ignore", message=r".*SymbolDatabase\.GetPrototype.*")
+
 import cv2
 import numpy as np
 from src.hand_detector import HandDetector
 from src.gesture_classifier import GestureClassifier
 from src.sentence_builder import SentenceBuilder
 from src.tts_engine import TTSEngine
+
 
 
 def draw_hud(img: np.ndarray,
