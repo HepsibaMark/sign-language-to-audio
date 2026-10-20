@@ -1,7 +1,8 @@
 """
-Sign Language to Audio - Web Interactive Dashboard
-Streamlit-powered presentation portal featuring gesture references, dataset metrics,
-social impact insights, and an interactive audio speech tester.
+Sign Language Assistive Suite - Web Interactive Dashboard
+Streamlit-powered presentation portal featuring both directions:
+  1. Sign Language to Audio (Vision AI, Model Analytics, Speech Synthesis)
+  2. Text to Sign Language (Text/Speech ➔ Visual Sign Gestures & Fingerspelling)
 """
 
 import os
@@ -11,74 +12,162 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
+from src.text_to_sign import TextToSignEngine
+from src.tts_engine import TTSEngine
+
 st.set_page_config(
-    page_title="Sign Language to Audio Assistive System",
+    page_title="Bi-Directional Sign Language Assistive Suite",
     page_icon="🤟",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # Header
-st.title("🤟 Sign Language to Audio Assistive System")
-st.markdown("### *Empowering Inclusive Communication with Computer Vision, AI & Speech Synthesis*")
+st.title("🤟 Bi-Directional Sign Language Assistive Suite")
+st.markdown("### *Empowering Inclusive Communication: Sign ➔ Speech  |  Text & Speech ➔ Sign*")
 st.write("---")
 
-# Sidebar Navigation
+# Navigation
 sidebar_nav = st.sidebar.radio(
     "Navigation",
-    ["🌐 Social Impact & Overview", "📖 Gesture Dictionary & Guide", "📊 Model Performance & Dataset", "🔊 Speech Synthesizer Tester"]
+    [
+        "🌐 Social Impact & Overview",
+        "✍️ Text to Sign Language Translator",
+        "📖 Visual Sign Gallery & Dictionary",
+        "📊 Model Performance & Dataset",
+        "🔊 Speech Synthesizer Tester"
+    ]
 )
 
+engine = TextToSignEngine()
+
+# -----------------------------------------------------------------------------
+# 1. Social Impact & Overview
+# -----------------------------------------------------------------------------
 if sidebar_nav == "🌐 Social Impact & Overview":
-    st.header("🌍 The Social Problem & Vision")
+    st.header("🌍 The Social Problem & Bi-Directional Vision")
     col1, col2 = st.columns([3, 2])
 
     with col1:
         st.markdown("""
-        ### Background & Motivation
-        According to the **World Federation of the Deaf (WFD)**, over **70 million deaf individuals** worldwide use sign language as their primary mother tongue.
-        However, fewer than **0.1%** of the general hearing population can understand or communicate in sign language.
+        ### Why Two-Way Communication is Essential
+        Communication is inherently bi-directional. Most existing assistive systems only focus on one direction (e.g., deaf person signing to hearing person).
+        However, in real-world scenarios:
+        * **A doctor or nurse** needs to communicate critical instructions back to a deaf patient.
+        * **A bank teller or cashier** needs to explain transactions back to a customer.
+        * **A teacher or classmate** needs to convey educational content back to deaf students.
 
-        This stark communication barrier leads to:
-        * **Healthcare Disparities**: Patients cannot explain critical symptoms or emergencies without a certified interpreter.
-        * **Educational Inequity**: Deaf students face severe obstacles in mainstream educational spaces.
-        * **Workplace Discrimination**: Everyday conversations, interviews, and public transactions (banking, retail, public transport) become high-stress hurdles.
-
-        ### Our Solution
-        This project creates an **accessible, real-time, low-latency bridge** that converts sign language into audible spoken voice and clear text on standard consumer laptops or computers—requiring **no expensive specialized hardware or data gloves**.
+        ### Our Integrated Solution
+        1. **Sign Language to Audio**: Captures hand gestures via standard webcam, tracks 21 3D landmarks, predicts signs with AI, and synthesizes clear voice.
+        2. **Text / Speech to Sign Language**: Allows hearing individuals to type or speak into a microphone, instantly translating sentences into visual sign language animations and fingerspelling sequences.
         """)
 
-        st.info("💡 **Core Architecture**: MediaPipe 21 3D Landmark Tracking ➔ Scale/Position Invariant Feature Normalization ➔ Random Forest / Geometric Classifier ➔ Hold-to-Confirm Stabilization ➔ Asynchronous Audio Text-to-Speech Engine.")
+        st.info("💡 **Inclusive & Accessible**: Runs 100% on standard laptops and computers. Requires zero specialized data gloves or expensive GPU accelerators.")
 
     with col2:
         st.subheader("Key Impact Metrics")
         st.metric(label="Global Deaf Community", value="70+ Million")
-        st.metric(label="Hardware Requirement", value="Standard Webcam (0$ Cost)")
-        st.metric(label="Audio Latency", value="< 150 ms")
-        st.metric(label="Offline Functionality", value="100% On-Device (Zero Cloud Dep)")
+        st.metric(label="Communication Paradigm", value="Bi-Directional (2-Way)")
+        st.metric(label="Supported Hardware", value="Standard Laptop & Webcam")
+        st.metric(label="Classification Accuracy", value="100.0% (Benchmark)")
 
-elif sidebar_nav == "📖 Gesture Dictionary & Guide":
-    st.header("📖 Supported Sign Vocabulary & How-To Guide")
-    st.markdown("Here is the list of recognizable signs, fingerspelling letters, and everyday emergency words supported by the system:")
+# -----------------------------------------------------------------------------
+# 2. Text to Sign Language Translator
+# -----------------------------------------------------------------------------
+elif sidebar_nav == "✍️ Text to Sign Language Translator":
+    st.header("✍️ Text to Sign Language Visual Translator")
+    st.markdown("Translate written text or sentences into sequential American Sign Language (ASL) gestures:")
 
-    gestures = [
-        {"Sign": "HELLO", "Category": "Everyday Greeting", "Description": "Open palm facing camera with all 5 fingers spread out."},
-        {"Sign": "THANK YOU", "Category": "Courtesy", "Description": "All 4 fingers straight up, thumb tucked slightly across palm (ASL 'B' gesture)."},
-        {"Sign": "YES", "Category": "Confirmation", "Description": "Closed fist with thumb resting alongside (or nodding fist motion)."},
-        {"Sign": "NO", "Category": "Negation", "Description": "Index and Middle fingers snapped closed against thumb or thumbs-down."},
-        {"Sign": "HELP", "Category": "Emergency", "Description": "Clear Thumbs-Up sign, indicating need for assistance or approval."},
-        {"Sign": "WATER", "Category": "Survival Need", "Description": "Index, Middle, and Ring fingers held up in 'W' shape, pinky and thumb tucked."},
-        {"Sign": "I LOVE YOU", "Category": "Universal ASL", "Description": "Thumb, Index finger, and Pinky extended; Middle and Ring fingers curled down."},
-        {"Sign": "OK", "Category": "Acknowledgment", "Description": "Thumb and Index tips touching in a ring, other 3 fingers extended upward."},
-        {"Sign": "PEACE / V", "Category": "Number / Letter", "Description": "Index and Middle fingers extended in a 'V' shape, other fingers curled."},
-        {"Sign": "A - Z Alphabet", "Category": "Fingerspelling", "Description": "Standard American Sign Language manual alphabet for spelling names and medical terms."}
+    sample_sentences = [
+        "Hello, can you please help me?",
+        "Thank you very much!",
+        "I need water, please.",
+        "Yes, that is okay.",
+        "Peace and love to everyone."
     ]
 
-    df_gestures = pd.DataFrame(gestures)
-    st.dataframe(df_gestures, use_container_width=True)
+    choice = st.selectbox("Choose a sample sentence or type your own:", ["Custom Input"] + sample_sentences)
 
-    st.success("💡 **Tip**: Hold your hand steady in front of the camera for about 0.8 seconds to confirm the sign into the active sentence!")
+    if choice == "Custom Input":
+        input_text = st.text_input("Enter text to translate into Sign Language:", "Hello thank you for your help")
+    else:
+        input_text = st.text_input("Enter text to translate into Sign Language:", choice)
 
+    col_btn1, col_btn2 = st.columns([1, 4])
+    with col_btn1:
+        translate_pressed = st.button("🤟 Translate to Signs", type="primary")
+
+    if input_text.strip():
+        tokens = engine.translate_text(input_text.strip())
+
+        if tokens:
+            st.subheader(f"Sign Sequence ({len(tokens)} steps)")
+
+            # Render sequence badges
+            timeline_items = []
+            for t in tokens:
+                if t['type'] == 'space':
+                    timeline_items.append("*(space)*")
+                else:
+                    timeline_items.append(f"**[{t['token']}]**")
+            st.markdown(" ➔ ".join(timeline_items))
+
+            st.write("---")
+
+            # Display sign cards in responsive grid columns
+            cols = st.columns(min(len(tokens), 4))
+            for idx, token in enumerate(tokens):
+                with cols[idx % 4]:
+                    sign_name = token['token']
+                    img_path = os.path.join(engine.assets_dir, f"{sign_name}.png")
+                    if os.path.exists(img_path):
+                        img = Image.open(img_path)
+                        st.image(img, caption=f"Step {idx + 1}: {sign_name}", use_container_width=True)
+                    else:
+                        st.info(f"[{sign_name}]")
+                    st.caption(f"_{token['description']}_")
+
+            st.write("---")
+            if st.button("🔊 Play Voice Narration for Text"):
+                try:
+                    tts = TTSEngine()
+                    tts.speak(input_text.strip())
+                    st.success(f"Speaking: \"{input_text.strip()}\"")
+                except Exception as e:
+                    st.error(f"TTS Error: {e}")
+        else:
+            st.warning("No recognizable letters or words found.")
+
+# -----------------------------------------------------------------------------
+# 3. Visual Sign Gallery & Dictionary
+# -----------------------------------------------------------------------------
+elif sidebar_nav == "📖 Visual Sign Gallery & Dictionary":
+    st.header("📖 Visual Sign Gallery & Manual Alphabet")
+    st.markdown("Browse standard visual sign configurations with anatomical joint guides:")
+
+    tab_letters, tab_words = st.tabs(["🔤 Alphabet A–Z (Fingerspelling)", "💬 Everyday Social Signs"])
+
+    with tab_letters:
+        letters = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        l_cols = st.columns(4)
+        for idx, letter in enumerate(letters):
+            with l_cols[idx % 4]:
+                p = os.path.join(engine.assets_dir, f"{letter}.png")
+                if os.path.exists(p):
+                    st.image(Image.open(p), caption=f"Letter {letter}", use_container_width=True)
+
+    with tab_words:
+        words = ["HELLO", "THANK YOU", "HELP", "WATER", "YES", "NO", "I LOVE YOU", "OK", "PEACE", "PLEASE", "GOOD", "BAD", "CALL"]
+        w_cols = st.columns(3)
+        for idx, word in enumerate(words):
+            with w_cols[idx % 3]:
+                p = os.path.join(engine.assets_dir, f"{word}.png")
+                if os.path.exists(p):
+                    st.image(Image.open(p), caption=word, use_container_width=True)
+
+# -----------------------------------------------------------------------------
+# 4. Model Performance & Dataset
+# -----------------------------------------------------------------------------
 elif sidebar_nav == "📊 Model Performance & Dataset":
     st.header("📊 Machine Learning Performance & Analytics")
 
@@ -114,9 +203,12 @@ elif sidebar_nav == "📊 Model Performance & Dataset":
             * **Inference Speed**: ~4 ms per frame on standard CPU
             """)
 
+# -----------------------------------------------------------------------------
+# 5. Speech Synthesizer Tester
+# -----------------------------------------------------------------------------
 elif sidebar_nav == "🔊 Speech Synthesizer Tester":
     st.header("🔊 Interactive Speech Synthesizer")
-    st.markdown("Test the speech engine with custom text or translated sign phrases:")
+    st.markdown("Test the speech synthesis engine with custom phrases:")
 
     sample_phrases = [
         "Hello, my name is Alex.",
@@ -136,7 +228,6 @@ elif sidebar_nav == "🔊 Speech Synthesizer Tester":
     if st.button("🔊 Synthesize & Speak Audio"):
         if user_input.strip():
             try:
-                from src.tts_engine import TTSEngine
                 tts = TTSEngine()
                 tts.speak(user_input.strip())
                 st.success(f"Speaking: \"{user_input}\"")

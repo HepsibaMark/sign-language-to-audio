@@ -1,66 +1,74 @@
-# 🤟 Sign Language to Audio (SL2A) - Assistive Communication Suite
+# 🤟 Bi-Directional Sign Language & Audio Assistive Suite
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![MediaPipe](https://img.shields.io/badge/MediaPipe-Hands%20Tracking-orange.svg)](https://developers.google.com/mediapipe)
 [![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-red.svg)](https://opencv.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Random%20Forest-yellow.svg)](https://scikit-learn.org/)
 [![pyttsx3](https://img.shields.io/badge/TTS-Offline%20Speech-green.svg)](https://pyttsx3.readthedocs.io/)
+[![SpeechRecognition](https://img.shields.io/badge/STT-Voice%20Input-purple.svg)]()
 [![Social Good](https://img.shields.io/badge/Impact-Deaf%20%26%20Hard%20of%20Hearing-brightgreen.svg)]()
 
-> **An AI-powered, real-time assistive technology that translates American Sign Language (ASL) and essential everyday gestures into audible natural human speech and text using standard consumer webcams.**
+> **A comprehensive, AI-powered two-way communication assistive platform that bridges the deaf and hearing communities:**
+> 1. **Sign Language to Audio**: Translates real-time webcam signs into audible natural human speech and text.
+> 2. **Text / Speech to Sign Language**: Translates written text or microphone voice into sequential visual Sign Language gestures and fingerspelling animations.
 
 ---
 
-## 🌍 1. Social Impact & Problem Statement
+## 🌍 1. Social Impact & Bi-Directional Communication
 
-According to the **World Federation of the Deaf (WFD)**, over **70 million people** worldwide use sign language as their primary mother tongue. However, fewer than **0.1%** of the general population understand sign language, creating profound daily barriers:
+Communication is fundamentally a two-way exchange. According to the **World Federation of the Deaf (WFD)**, over **70 million deaf individuals** worldwide use sign language as their native tongue, yet fewer than **0.1%** of the general population understand it.
 
-* **Healthcare & Emergency Access**: In hospital triage and emergency situations, patients who cannot speak or hear struggle to describe symptoms or call for help without an in-person interpreter.
-* **Educational & Civic Inclusion**: Deaf individuals face systemic communication hurdles in educational institutions, banks, public transit, and retail.
-* **Prohibitive Hardware Costs**: Traditional solutions rely on expensive sensory data gloves (\$500–\$2,000) or high-end GPU workstations that are inaccessible in underprivileged communities.
+Existing assistive technologies frequently suffer from a critical flaw: **they are one-directional**.
+* When a deaf patient signs to a doctor, the doctor needs a way to **reply back in sign language**.
+* When a hearing customer service agent speaks to a deaf client, the client needs to **see the response in sign gestures**.
 
-### Our Solution
-**Sign Language to Audio** is an **accessible, zero-cost, offline-first assistive communication system**. Using only an inexpensive USB or laptop webcam, it extracts 3D skeletal hand landmarks, performs real-time gesture classification, constructs sentences with temporal stabilization, and synthesizes clear, audible speech with zero cloud dependency.
+### Our Integrated Solution
+This suite provides an **accessible, zero-cost, offline-first two-way bridge**:
+* **Deaf User ➔ Hearing User**: Webcam detects 3D hand landmarks in real time, classifies signs, constructs stabilized sentences, and speaks aloud using Text-to-Speech (TTS).
+* **Hearing User ➔ Deaf User**: Type a sentence or speak into a microphone; the system instantly parses the phrase and displays high-clarity anatomical hand skeleton diagrams and timed sign animations.
 
 ---
 
-## 🏗️ 2. System Architecture & Pipeline
+## 🏗️ 2. Bi-Directional Architecture
 
 ```mermaid
-flowchart LR
-    A["Webcam Video Stream"] --> B["MediaPipe Hands (21 3D Keypoints)"]
-    B --> C["Invariant Normalization (Position & Scale)"]
-    C --> D{"Hybrid Classification"}
-    D -->|"Random Forest ML"| E["Gesture Prediction & Confidence"]
-    D -->|"Geometric Heuristics"| E
-    E --> F["Sentence Builder (Hold-to-Confirm Debounce)"]
-    F --> G["Text Output Buffer"]
-    G --> H["Async Text-to-Speech (TTS Engine)"]
-    H --> I["🔊 Audible Audio Speech"]
-```
+flowchart TB
+    subgraph ForwardPipeline ["1. Sign Language ➔ Audio (Deaf to Hearing)"]
+        A["Webcam Video Stream"] --> B["MediaPipe Hands (21 3D Landmarks)"]
+        B --> C["Invariant Normalization (Position & Scale)"]
+        C --> D{"ML + Geometric Classifier"}
+        D --> E["Sentence Builder (Hold-to-Confirm)"]
+        E --> F["Async Text-to-Speech (TTS)"]
+        F --> G["🔊 Audible Audio Speech"]
+    end
 
-### Key Technical Pillars
-1. **MediaPipe Hand Landmark Extraction**: Tracks 21 3D joint landmarks per hand at 30+ FPS on standard CPUs.
-2. **Position & Scale Invariant Normalization**: Translates coordinates to origin relative to the wrist ($x_0, y_0, z_0$) and scales by palm distance, rendering predictions invariant to camera distance, skin tone, or background lighting.
-3. **Temporal Hold-to-Confirm Stabilizer**: Eliminates flicker between transition frames by requiring a sign to be held stably for $\approx 0.8\text{ s}$ before registering.
-4. **Asynchronous Non-Blocking TTS Worker**: Employs a thread-safe task queue so audio playback never pauses or drops video frames.
+    subgraph ReversePipeline ["2. Text / Speech ➔ Sign Language (Hearing to Deaf)"]
+        H["Written Text Input"] --> J["Text-to-Sign Engine & Tokenizer"]
+        I["Microphone Voice Input"] -->|Speech-to-Text| J
+        J --> K["Phrase Match & ASL Fingerspelling"]
+        K --> L["Sequential Visual Hand Skeleton Diagrams"]
+        L --> M["🎬 Real-Time Sign Animation & Timeline"]
+    end
+```
 
 ---
 
-## 📖 3. Supported Vocabulary & Signs
+## 📖 3. Supported Vocabulary & Dictionary
 
 | Gesture / Sign | Category | Physical Description |
 | :--- | :--- | :--- |
 | **HELLO** | Greeting | Open palm facing camera with all 5 fingers extended |
-| **THANK YOU** | Politeness | 4 fingers upright, thumb folded slightly across palm |
-| **YES** | Confirmation | Closed fist (or fist nod) |
-| **NO** | Negation | Thumbs down or index & middle snapping closed |
+| **THANK YOU** | Politeness | 4 fingers upright touching, moving forward from chin |
+| **YES** | Confirmation | Closed fist with thumb at side (or fist nodding) |
+| **NO** | Negation | Index & Middle fingers snapping closed against thumb |
 | **HELP** | Emergency | Upward Thumbs-Up |
 | **WATER** | Survival Need | 'W' sign (Index, Middle, Ring upright; Pinky tucked) |
-| **I LOVE YOU** | Social | Thumb + Index + Pinky extended; Middle & Ring folded |
+| **I LOVE YOU** | Universal ASL | Thumb + Index + Pinky extended; Middle & Ring folded |
 | **OK** | Acknowledgment | Thumb & Index tips touching in circle; 3 fingers extended |
 | **PEACE (V)** | Number / Sign | Index & Middle fingers extended in 'V' shape |
-| **A – Z Alphabet** | Fingerspelling | Complete ASL manual alphabet for spelling names & terms |
+| **PLEASE** | Courtesy | Flat palm circular motion over chest |
+| **GOOD / BAD** | Expression | Thumbs up / Thumbs down |
+| **A – Z Alphabet** | Fingerspelling | Complete 26-letter ASL manual alphabet for spelling names & terms |
 
 ---
 
@@ -68,8 +76,8 @@ flowchart LR
 
 ### Prerequisites
 * **Python 3.11** (Recommended for OpenCV & MediaPipe binary stability)
-* Standard webcam (built-in or USB)
-* Working speakers or headphones
+* Standard webcam (for Sign ➔ Audio)
+* Microphone & Speakers (for Voice ➔ Sign and Speech Audio)
 
 ### Step-by-Step Setup
 
@@ -100,8 +108,31 @@ flowchart LR
 
 ## 🚀 5. How to Run the Applications
 
-### Option A: High-Performance Live OpenCV HUD (Recommended)
-Launches the full-screen interactive camera application with real-time HUD overlays:
+### Option A: Unified Bi-Directional Desktop Suite (All-In-One Hub)
+Launches the full desktop interface with tabbed switching between **Sign ➔ Audio** and **Text/Voice ➔ Sign**:
+```bash
+python gui_app.py
+```
+* **Tab 1 (Sign to Audio)**: Live camera stream, landmark overlays, sentence builder, voice picker, and speech logs.
+* **Tab 2 (Text to Sign)**: Type text or click **🎙️ Speak Mic**, adjust animation playback speed, and watch sequential visual sign cards!
+
+---
+
+### Option B: Dedicated Text & Voice to Sign Language Player
+Launches the standalone visual player for translating typed text or microphone voice into signs:
+```bash
+python text_to_sign_app.py
+```
+* **Features**:
+  * Type any sentence or click **🎙️ Voice Input**.
+  * Timeline showing upcoming signs with current step highlighted.
+  * Play / Pause / Next / Previous sign navigation with adjustable speed slider.
+  * Dual output: Visual sign diagrams + simultaneous audio narration.
+
+---
+
+### Option C: Live Webcam Heads-Up Display (Sign ➔ Audio)
+High-performance OpenCV HUD overlay for webcam gesture detection:
 ```bash
 python app.py
 ```
@@ -115,16 +146,8 @@ python app.py
 
 ---
 
-### Option B: Modern Desktop GUI Application
-Launches a native desktop window with embedded video, voice selectors, speed/pitch controls, and speech history logs:
-```bash
-python gui_app.py
-```
-
----
-
-### Option C: Interactive Web Dashboard (Streamlit)
-Launches an interactive browser portal for presentations, dataset metrics, and speech testing:
+### Option D: Interactive Web Presentation Dashboard (Streamlit)
+Web browser presentation portal featuring both pipelines, interactive speech synthesizer, visual sign gallery, and dataset metrics:
 ```bash
 python -m streamlit run streamlit_app.py
 ```
@@ -133,14 +156,14 @@ python -m streamlit run streamlit_app.py
 
 ## 🧪 6. Custom Dataset Collection & Model Training
 
-Want to train your own custom signs (e.g. regional sign languages like ISL or BSL)?
+Want to train custom regional gestures (e.g. Indian Sign Language - ISL, or British Sign Language - BSL)?
 
 ### Step 1: Collect Custom Data
 Run the interactive data collector:
 ```bash
 python collect_data.py
 ```
-* Type the name of the new gesture (e.g., `MEDICINE`).
+* Type the gesture label (e.g., `MEDICINE`).
 * Position your hand in front of the camera and press `S` to record 60 frames.
 
 ### Step 2: Retrain the Model
@@ -154,9 +177,9 @@ python train_model.py
 ## 📊 7. Model Performance
 
 * **Model Family**: Random Forest Classifier ($N=120$ Estimators, Max Depth 16)
-* **Input Feature Vector**: 63-dimensional normalized spatial coordinates
+* **Input Feature Vector**: 63-dimensional normalized spatial coordinates (position & scale invariant)
 * **Validation Accuracy**: **100.0%** across core benchmark gestures
-* **Latency**: $< 5\text{ ms}$ inference latency per frame on standard CPU
+* **Inference Speed**: $< 5\text{ ms}$ per frame on standard CPU
 
 ---
 
@@ -167,16 +190,19 @@ sign-language-to-audio/
 │
 ├── .venv/                         # Isolated Python virtual environment
 ├── .gitignore                     # Git ignore rules
-├── requirements.txt               # Package dependencies
-├── README.md                      # Documentation & Social Impact Report
+├── requirements.txt               # Package dependencies (OpenCV, MediaPipe, pyttsx3, SpeechRecognition)
+├── README.md                      # Comprehensive academic & social impact documentation
 │
 ├── src/                           # Core Engine Modules
 │   ├── __init__.py
 │   ├── hand_detector.py           # MediaPipe tracker & normalization logic
-│   ├── gesture_classifier.py      # ML + Heuristic dual classification
+│   ├── gesture_classifier.py      # ML + Geometric dual classification
 │   ├── sentence_builder.py        # Debouncing, hold-to-confirm, sentence buffer
-│   └── tts_engine.py              # Thread-safe async Text-to-Speech audio queue
+│   ├── tts_engine.py              # Thread-safe async Text-to-Speech audio queue
+│   └── text_to_sign.py            # Text/Speech to Sign Language translation engine
 │
+├── assets/
+│   └── signs/                     # Pre-rendered visual sign cards (A-Z, Hello, Water, etc.)
 ├── data/
 │   └── landmarks_dataset.pickle   # Landmark training dataset
 ├── model/
@@ -184,8 +210,10 @@ sign-language-to-audio/
 ├── scripts/
 │   └── generate_canonical_dataset.py # Canonical dataset synthesizer
 │
-├── app.py                         # Live OpenCV HUD application
-├── gui_app.py                     # Desktop Tkinter GUI with audio controls
+├── app.py                         # Live OpenCV HUD application (Sign ➔ Audio)
+├── gui_app.py                     # Unified Desktop Bi-directional GUI Suite
+├── text_to_sign_app.py            # Standalone Text/Voice to Sign Language Player
+├── streamlit_app.py               # Web presentation portal
 ├── collect_data.py                # Interactive webcam dataset collector
 ├── train_model.py                 # Model training & evaluation pipeline
 └── test_tts.py                    # Audio engine test script
@@ -195,19 +223,21 @@ sign-language-to-audio/
 
 ## 🤝 9. Social Inclusion & Future Roadmap
 
-* [x] Real-time 21 3D hand keypoint tracking
-* [x] Invariant coordinate normalization
-* [x] Sentence formation buffer with hold-to-confirm stabilization
+* [x] Real-time 21 3D hand keypoint tracking (MediaPipe)
+* [x] Position & scale invariant coordinate normalization
+* [x] Hold-to-confirm temporal smoothing buffer
 * [x] Zero-latency offline speech synthesis with selectable voices
-* [x] Full Desktop GUI and Live OpenCV HUD
-* [ ] Two-handed dynamic sign recognition (e.g., LSTM / Transformer for continuous signing)
+* [x] **Reverse Pipeline: Text to Sign Language translation**
+* [x] **Reverse Pipeline: Microphone speech-to-text to Sign Language**
+* [x] **Visual sign skeleton graphics library (A–Z + Words)**
+* [x] **Unified Bi-directional Desktop GUI with tabbed views**
 * [ ] Multi-lingual speech translation (English to Spanish, Hindi, French, Tamil, etc.)
-* [ ] Mobile deployment via ONNX Runtime / TensorFlow Lite
+* [ ] 3D animated avatar rendering via WebGL / Three.js
 
 ---
 
 ## 📄 10. License & Acknowledgments
 
-This project is licensed under the **MIT License** — feel free to use, modify, and distribute for educational, research, and non-profit assistive initiatives.
+This project is licensed under the **MIT License** — free for academic, non-profit, and accessibility use.
 
-Developed with ❤️ to empower communication accessibility for all.
+Developed with ❤️ to empower two-way communication accessibility for all.
